@@ -1,0 +1,147 @@
+### ============================================================
+### Meta Chatbot Webhook PoC — HTTP test file
+### Use with VS Code REST Client or JetBrains HTTP Client.
+### ============================================================
+
+@baseUrl = http://localhost:5000
+
+### ── 1. Webhook Verification (GET /webhook) ──────────────────
+### Simulates the handshake Meta performs when you save the
+### webhook URL in the Meta App Dashboard.
+### Replace VERIFY_TOKEN with the value in appsettings.json.
+
+GET {{baseUrl}}/webhook?hub.mode=subscribe&hub.verify_token=YOUR_VERIFY_TOKEN&hub.challenge=CHALLENGE_STRING_123
+Accept: text/plain
+
+###
+
+### ── 2. Send a Facebook Message (POST /api/send) ─────────────
+### Sends a text reply to a Facebook user by their PSID.
+### Replace USER_PSID with a real sender ID from a webhook log.
+
+POST {{baseUrl}}/api/send
+Content-Type: application/json
+
+{
+  "platform": "facebook",
+  "recipientId": "USER_PSID",
+  "message": "Hello from the PoC chatbot! (Facebook)"
+}
+
+###
+
+### ── 3. Send an Instagram Message (POST /api/send) ──────────
+### Sends a text reply to an Instagram user by their IGSID.
+
+POST {{baseUrl}}/api/send
+Content-Type: application/json
+
+{
+  "platform": "instagram",
+  "recipientId": "USER_IGSID",
+  "message": "Hello from the PoC chatbot! (Instagram)"
+}
+
+###
+
+### ── 4. Webhook Event — Simulate a Facebook message ──────────
+### NOTE: The X-Hub-Signature-256 header below is a PLACEHOLDER.
+### You must compute the real HMAC-SHA256 signature of the body
+### before this will be accepted by the server.
+###
+### PowerShell to compute the signature:
+###   $secret = "YOUR_APP_SECRET"
+###   $body   = '{"object":"page","entry":[{"id":"PAGE_ID","time":1234567890,"messaging":[{"sender":{"id":"USER_PSID"},"recipient":{"id":"PAGE_ID"},"timestamp":1234567890,"message":{"mid":"m.test","text":"Hello bot!"}}]}]}'
+###   $hmac   = New-Object System.Security.Cryptography.HMACSHA256
+###   $hmac.Key = [Text.Encoding]::UTF8.GetBytes($secret)
+###   $hash   = $hmac.ComputeHash([Text.Encoding]::UTF8.GetBytes($body))
+###   "sha256=" + [BitConverter]::ToString($hash).Replace("-","").ToLower()
+###
+### Bash (macOS/Linux):
+###   echo -n '<body>' | openssl dgst -sha256 -hmac 'YOUR_APP_SECRET'
+###   Prefix the output with "sha256="
+
+POST {{baseUrl}}/webhook
+Content-Type: application/json
+X-Hub-Signature-256: sha256=REPLACE_WITH_COMPUTED_SIGNATURE
+
+{
+  "object": "page",
+  "entry": [
+    {
+      "id": "PAGE_ID",
+      "time": 1234567890,
+      "messaging": [
+        {
+          "sender":    { "id": "USER_PSID" },
+          "recipient": { "id": "PAGE_ID" },
+          "timestamp": 1234567890,
+          "message": {
+            "mid":  "m.test001",
+            "text": "Hello bot!"
+          }
+        }
+      ]
+    }
+  ]
+}
+
+###
+
+### ── 5. Webhook Event — Simulate an Instagram message ────────
+
+POST {{baseUrl}}/webhook
+Content-Type: application/json
+X-Hub-Signature-256: sha256=REPLACE_WITH_COMPUTED_SIGNATURE
+
+{
+  "object": "instagram",
+  "entry": [
+    {
+      "id": "IG_ID",
+      "time": 1234567890,
+      "messaging": [
+        {
+          "sender":    { "id": "USER_IGSID" },
+          "recipient": { "id": "IG_ID" },
+          "timestamp": 1234567890,
+          "message": {
+            "mid":  "m.ig001",
+            "text": "Hi from Instagram!"
+          }
+        }
+      ]
+    }
+  ]
+}
+
+###
+
+### ── 6. Webhook Event — Simulate a Facebook postback ─────────
+
+POST {{baseUrl}}/webhook
+Content-Type: application/json
+X-Hub-Signature-256: sha256=REPLACE_WITH_COMPUTED_SIGNATURE
+
+{
+  "object": "page",
+  "entry": [
+    {
+      "id": "PAGE_ID",
+      "time": 1234567890,
+      "messaging": [
+        {
+          "sender":    { "id": "USER_PSID" },
+          "recipient": { "id": "PAGE_ID" },
+          "timestamp": 1234567890,
+          "postback": {
+            "title":   "Get Started",
+            "payload": "GET_STARTED"
+          }
+        }
+      ]
+    }
+  ]
+}
+
+###
