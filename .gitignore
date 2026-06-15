@@ -1,0 +1,50 @@
+# Build output
+bin/
+obj/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# VS Code (keep .vscode/extensions.json and launch.json if shared, ignore personal settings)
+.vscode/settings.json
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Publish output
+publish/
+**/Properties/PublishProfiles/
+
+# Runtime & logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# ──────────────────────────────────────────────
+# Secrets — never commit real credentials
+# ──────────────────────────────────────────────
+# Keep appsettings.json as a template (with YOUR_* placeholders).
+# Override with appsettings.Development.json locally — never commit it.
+appsettings.Development.json
+appsettings.Production.json
+appsettings.*.local.json
+
+# .NET user secrets (dotnet user-secrets)
+**/secrets.json
