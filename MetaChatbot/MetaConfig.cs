@@ -34,4 +34,7 @@ public record InstagramConfig
 
     /// <summary>Access Token with instagram_manage_messages permission.</summary>
     public string AccessToken { get; init; } = string.Empty;
+
+    /// <summary>Instagram App Secret from App Dashboard → Instagram API Configuration. Used for webhook signature validation.</summary>
+    public string AppSecret { get; init; } = string.Empty;
 }

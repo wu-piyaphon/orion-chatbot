@@ -62,11 +62,14 @@ app.MapPost("/webhook", async (HttpRequest request, MetaConfig config) =>
     // Validate X-Hub-Signature-256 before touching the payload.
     var signature = request.Headers["X-Hub-Signature-256"].ToString();
 
-    if (!string.IsNullOrEmpty(config.AppSecret) &&
-        !WebhookHandler.VerifySignature(config.AppSecret, bodyBytes, signature))
+    var signatureValid =
+        (!string.IsNullOrEmpty(config.AppSecret)          && WebhookHandler.VerifySignature(config.AppSecret,           bodyBytes, signature)) ||
+        (!string.IsNullOrEmpty(config.Instagram.AppSecret) && WebhookHandler.VerifySignature(config.Instagram.AppSecret, bodyBytes, signature));
+
+    if (!signatureValid)
     {
-        // Always return 200 to prevent Meta from retrying; log the rejection.
-        app.Logger.LogWarning("Webhook signature validation failed — request discarded.");
+        if (app.Logger.IsEnabled(LogLevel.Warning))
+            app.Logger.LogWarning("Webhook signature validation failed — received: {Signature}", signature);
         return Results.Ok();
     }
 

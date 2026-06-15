@@ -33,6 +33,13 @@ public static class WebhookHandler
         );
     }
 
+    /// <summary>Computes the expected HMAC-SHA256 signature for a given body. Used for debugging.</summary>
+    public static string ComputeSignature(string appSecret, byte[] bodyBytes)
+    {
+        using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(appSecret));
+        return "sha256=" + Convert.ToHexString(hmac.ComputeHash(bodyBytes)).ToLowerInvariant();
+    }
+
     /// <summary>
     /// Deserializes the raw Meta webhook JSON into a <see cref="WebhookPayload"/>.
     /// Returns null if the JSON is malformed or missing required fields.
